@@ -13,7 +13,7 @@ from tensorflow.keras import backend as Ktf
 import matplotlib.pyplot as plt
 
 #pretrained = 'B:/ThreePoint/Graph/2019-04-01-22-57/weights.090-0.04264'
-pretrained = 'B:/ThreePoint/weights.034-0.19783'
+pretrained = 'B:/ThreePoint/weights.200-0.12259'
 
 # User variables
 from threepoint_io import *
@@ -48,14 +48,17 @@ else:
 
 # Grab the label
 output = np.zeros( velocity.shape, dtype=np.float32 )
+block_average = np.zeros( velocity.shape, dtype=np.float32 )
 
 # Test on whole image
 blocks = np.ceil(np.asarray(image.shape) / patch_output).astype(np.int)
 
+print('Patch Output = %d' % (patch_output,))
+
 for bs in (False,True):
 
     if bs:
-        image = np.roll( image, (patch_output/2,patch_output/2,patch_output/2))
+        image = np.roll( image, (int(patch_output/2),int(patch_output/2),int(patch_output/2)),axis=(0,1,2) )
 
     for bz in range(blocks[0]):
         for by in range(blocks[1]):
@@ -95,8 +98,12 @@ for bs in (False,True):
 
     # Roll back
     if bs:
-        image = np.roll(image, (-patch_output / 2, -patch_output / 2, -patch_output / 2))
+        print('Roll Back to Correct Coordinates')
+        image = np.roll( image, (-int(patch_output / 2), -int(patch_output / 2), -int(patch_output / 2)),axis=(0,1,2) )
+        output = np.roll(output, (-int(patch_output / 2), -int(patch_output / 2), -int(patch_output / 2)),axis=(0,1,2) )
 
+    # Average 2 block shifts
+    block_average += 0.5*output
 
 # Export
 print('Export 4 point')
@@ -107,7 +114,7 @@ except OSError:
     pass
 
 with h5py.File(out_name, 'w') as hf:
-    hf.create_dataset("VEST", data=np.squeeze(output))
+    hf.create_dataset("VEST", data=np.squeeze(block_average))
     hf.create_dataset("VACT", data=np.squeeze(velocity))
     hf.create_dataset("IMAGE", data=np.squeeze(image))
 
