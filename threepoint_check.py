@@ -1,19 +1,18 @@
 import os
 import numpy as np
-import tensorflow.keras as keras
 import glob
 import matplotlib.pyplot as plt
 import math
-from tensorflow.keras import backend as K
 from functools import partial
 import h5py
-import tensorflow.keras.layers
-import tensorflow as tf
-from tensorflow.keras import backend as Ktf
 import matplotlib.pyplot as plt
+import keras
+from keras import backend as K
 
 #pretrained = 'B:/ThreePoint/Graph/2019-04-01-22-57/weights.090-0.04264'
-pretrained = 'B:/ThreePoint/weights.200-0.12259'
+pretrained = 'D:/3POINT/weights.200-0.12259'
+data_directory = 'D:/3POINT/DataConvert'
+output_directory = 'D:/3POINT/Inferred'
 
 # User variables
 from threepoint_io import *
@@ -32,7 +31,7 @@ unwrap_model = keras.models.load_model(pretrained,custom_objects={'cropped_mse':
 unwrap_model.summary(line_length=200)
 
 # Load case
-image,weight,velocity = load_convert_4point('B:/ThreePoint/DataConvert/Images_00131.h5')
+image,weight,velocity = load_convert_4point(os.path.join(data_directory,'Images_00131.h5'))
 
 # Set cropping
 if unet:
@@ -117,25 +116,6 @@ with h5py.File(out_name, 'w') as hf:
     hf.create_dataset("VEST", data=np.squeeze(block_average))
     hf.create_dataset("VACT", data=np.squeeze(velocity))
     hf.create_dataset("IMAGE", data=np.squeeze(image))
-
-quit()
-
-# Export
-print('Export Images')
-out_name = 'Predict.h5'  # os.path.join('B:\DeepTrajectory\RECONS', 'Errors.h5')
-try:
-    os.remove(out_name)
-except OSError:
-    pass
-
-with h5py.File(out_name, 'w') as hf:
-    hf.create_dataset("PREDICTION", data=np.squeeze(output))
-    hf.create_dataset("PREDICTION_angle", data=np.squeeze(np.angle(output_complex)))
-    hf.create_dataset("PREDICTION_mag", data=np.squeeze(np.abs(output_complex)))
-
-    hf.create_dataset("IMAGE", data=np.squeeze(flow_case))
-    hf.create_dataset("IMAGE_angle", data=np.squeeze(np.angle(im_complex)))
-    hf.create_dataset("IMAGE_mag", data=np.squeeze(np.abs(im_complex)))
 
 
 
