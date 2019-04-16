@@ -1,5 +1,4 @@
 import keras
-from keras import backend as K
 from functools import partial
 import numpy as np
 

@@ -3,16 +3,16 @@ from threepoint_io import *
 from flow_tools import *
 
 # Global Variables
-training_data_dir = './DataConvert'
+training_data_dir = './DataConvert2'
 patch_size = 64 if unet else 32
 batch_size = 16 if unet else 8
 CROP_TYPE = 'valid'
 data_check = False
 
 # For restarting the training
-restart_training = True
+restart_training = False
 pretrained = 'B:/ThreePoint/weights.100-0.13483'
-initial_epoch=100 if restart_training else 0
+initial_epoch=0 if restart_training else 0
 
 def grab_patch(flow_cases=None, block_index=None):
 
@@ -146,7 +146,7 @@ class DataGenerator(keras.utils.Sequence):
 
             # Store sample
             X[count, :, :, :, :] = image
-            Y[count, :, :, :, :] = 100*np.squeeze(label)
+            Y[count, :, :, :, :] = np.squeeze(label)
             W[count, :, :, :, 0] = weights
 
         self.case_count += self.batch_size
@@ -168,11 +168,14 @@ if data_check:
 
 # Seperate into train/eval
 Ntrain = int(0.8*len(all_names))
+Nval = int(0.1*len(all_names))
 Tnames = all_names[:Ntrain]
-Vnames = all_names[Ntrain:]
+Vnames = all_names[Ntrain:(Ntrain+Nval)]
+Testnames = all_names[(Ntrain+Nval):]
 
 print('Training on %d cases' % (len(Tnames),))
 print('Validate on %d cases' % (len(Vnames),))
+print('Test on on %d cases' % (len(Testnames),))
 
 # Weighted MSE
 #input_weights = keras.Input(shape=(None, None, None, 1), dtype='float32')
@@ -190,7 +193,7 @@ else:
                                  initial_learning_rate=1e-4,
                                  deconvolution=True,
                                  depth=3,
-                                 n_base_filters=20,
+                                 n_base_filters=30,
                                  include_label_wise_dice_coefficients=False,
                                  metrics=None,
                                  batch_normalization=True,
