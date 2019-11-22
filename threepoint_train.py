@@ -3,16 +3,16 @@ from threepoint_io import *
 from flow_tools import *
 
 # Global Variables
-training_data_dir = './DataConvert2'
+training_data_dir = 'E:/3POINT/DataConvert2'
 patch_size = 64 if unet else 32
-batch_size = 16 if unet else 8
+batch_size = 8 if unet else 8
 CROP_TYPE = 'valid'
 data_check = False
 
 # For restarting the training
-restart_training = False
-pretrained = 'B:/ThreePoint/weights.100-0.13483'
-initial_epoch=0 if restart_training else 0
+restart_training = True
+pretrained = 'E:/3POINT/Weights_2019_10_21/weights.200-0.00078'
+initial_epoch=300 if restart_training else 0
 
 def grab_patch(flow_cases=None, block_index=None):
 
@@ -72,6 +72,8 @@ class DataGenerator(keras.utils.Sequence):
         self.velocity=None
         self.mrflow =  MRI_4DFlow()
         self.weights = None
+
+        print('batch_size = '+str(batch_size))
 
     def __len__(self):
 
@@ -223,7 +225,7 @@ mc = keras.callbacks.ModelCheckpoint('weights.{epoch:03d}-{val_loss:.5f}', save_
 # Fit
 history = unwrap_model.fit_generator(Tdatagen, steps_per_epoch=len(Tdatagen), validation_data=Vdatagen,
                            validation_steps=len(Vdatagen), initial_epoch=initial_epoch,
-                                     epochs=200, callbacks=[tbCallBack,mc], verbose=1, shuffle=False)
+                                     epochs=400, callbacks=[tbCallBack,mc], verbose=1, shuffle=False)
 
 # Get the dictionary containing each metric and the loss for each epoch
 import json

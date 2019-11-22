@@ -10,9 +10,37 @@ def load_convert_4point(filename=None):
 
     velocity = np.array(f['VELOCITY'])
     image = np.array(f['IMAGE'])
-    weight = np.array(f['WEIGHT'])
+    #weight = np.array(f['WEIGHT'])
+    magnitude = np.array(f['WEIGHT'])
+
+    weight = generate_weight(velocity, image, magnitude, type='cd')
 
     return image,weight,velocity
+
+def generate_weight(velocity, image, magnitude, type):
+
+    vel_mag = np.sqrt(np.sum(np.square(velocity), axis=3))
+
+    if type == 'cd':
+        cd = magnitude * np.sin(vel_mag * np.pi / 2)
+        return cd
+
+    if type == 'inv_vel_freq':
+        # Weight as inverse of frequency
+        # Bin numbers start from 1, whereas array index starts from 0
+        inside_head = (magnitude > 1)
+        bin_edges = np.arange(0, 2.1, 0.1)
+        vel_freq, _ = np.histogram(vel_mag[inside_head], bin_edges, density=True)
+        binned_vel = np.digitize(vel_mag, bin_edges) - 1
+        weight = np.zeros(magnitude.shape)
+
+        for i in range(len(bin_edges)-1):
+            if vel_freq[i] > 0:
+                mask = (binned_vel == i) & inside_head
+                weight[mask] = 1 / vel_freq[i]
+        weight = magnitude * weight
+        return weight
+
 
 def load_raw_4point(filename=None):
 

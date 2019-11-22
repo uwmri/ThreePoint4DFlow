@@ -14,9 +14,9 @@ import keras
 from keras import backend as K
 
 #pretrained = 'B:/ThreePoint/Graph/2019-04-01-22-57/weights.090-0.04264'
-pretrained = 'D:/3POINT/weights.200-0.12259'
-data_directory = 'D:/3POINT/DataConvert'
-output_directory = 'D:/3POINT/Inferred'
+pretrained = 'E:/3POINT/Weights_2019_11_04/weights.337-3930.15195'
+data_directory = 'E:/3POINT/DataConvert2'
+output_directory = 'E:/3POINT/Weights_2019_11_04/Inferred_337'
 
 # User variables
 from threepoint_io import *
