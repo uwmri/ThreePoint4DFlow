@@ -11,8 +11,8 @@ data_check = False
 
 # For restarting the training
 restart_training = False
-pretrained = 'B:/ThreePoint/weights.100-0.13483'
-initial_epoch=0 if restart_training else 0
+pretrained = 'B:/ThreePoint/weights.120-0.00204'
+initial_epoch=120 if restart_training else 0
 
 def grab_patch(flow_cases=None, block_index=None):
 
@@ -55,7 +55,7 @@ def grab_velocity_patch(flow_cases=None, velocity=None, weights=None, block_inde
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
 
-    def __init__(self, batch_size=32, N=320, folder_names=None, shuffle=True):
+    def __init__(self, batch_size=32, N=320, folder_names=None, shuffle=True,is_training=True):
 
         'Initialization'
         self.batch_size = batch_size
@@ -72,6 +72,7 @@ class DataGenerator(keras.utils.Sequence):
         self.velocity=None
         self.mrflow =  MRI_4DFlow()
         self.weights = None
+        self.is_training = is_training
 
     def __len__(self):
 
@@ -110,7 +111,11 @@ class DataGenerator(keras.utils.Sequence):
         #Reload the case if needed
         if ( (index*self.batch_size) % self.N ) == 0 or self.flow_case is None:
             rd = int(self.case_count/self.N) % len(self.current_names)
-            print('Load %s ' % (self.current_names[rd],))
+            if self.is_training:
+                print('Training  : Load %s ' % (self.current_names[rd],))
+            else:
+                print('Validaate : Load %s ' % (self.current_names[rd],))
+
             self.flow_case,self.weights,self.velocity = load_convert_4point(filename=self.current_names[rd])
 
         # Generate data
@@ -192,8 +197,8 @@ else:
                                  n_labels=3,
                                  initial_learning_rate=1e-4,
                                  deconvolution=True,
-                                 depth=3,
-                                 n_base_filters=30,
+                                 depth=5,
+                                 n_base_filters=20,
                                  include_label_wise_dice_coefficients=False,
                                  metrics=None,
                                  batch_normalization=True,
@@ -208,8 +213,8 @@ unwrap_model.summary(line_length=200)
 # Get a data generator
 N = batch_size*int(320**3/patch_size**3/batch_size) #blocks per image
 print('Examples per volume = %d' % (N,))
-Tdatagen = DataGenerator(batch_size=batch_size, N=N, folder_names=Tnames, shuffle=False)
-Vdatagen = DataGenerator(batch_size=batch_size, N=N, folder_names=Vnames, shuffle=False)
+Tdatagen = DataGenerator(batch_size=batch_size, N=N, folder_names=Tnames, shuffle=False, is_training=True)
+Vdatagen = DataGenerator(batch_size=batch_size, N=N, folder_names=Vnames, shuffle=False, is_training=False)
 
 # Tensorflow
 import datetime

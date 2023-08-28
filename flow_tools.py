@@ -67,6 +67,7 @@ class MRI_4DFlow:
 
     def solve_for_velocity(self):
 
+
         # Multiply by reference
         ref = self.signal[...,0]
         ref = np.expand_dims(ref, -1)

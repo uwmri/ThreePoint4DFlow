@@ -14,6 +14,11 @@ pretrained = 'D:/3POINT/weights.200-0.12259'
 data_directory = 'D:/3POINT/DataConvert'
 output_directory = 'D:/3POINT/Inferred'
 
+pretrained = 'B:/ThreePoint/weights.164-0.00204'
+data_directory = 'B:/ThreePoint/DataConvert2'
+output_directory = 'B:/ThreePoint/Inferred'
+
+
 # User variables
 from threepoint_io import *
 from threepoint_network import *
@@ -29,6 +34,7 @@ unwrap_model = keras.models.load_model(pretrained,custom_objects={'cropped_mse':
 
 # Get model summary
 unwrap_model.summary(line_length=200)
+exit(1)
 
 # Load case
 image,weight,velocity = load_convert_4point(os.path.join(data_directory,'Images_00131.h5'))
