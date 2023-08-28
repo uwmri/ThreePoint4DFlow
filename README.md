@@ -20,7 +20,7 @@ Data is preared in convert_datasets.py where the data is in HDF5 format with the
 1. '/WEIGHT' 
     - Size:  320x320x320
     - Datatype:   H5T_IEEE_F32LE (single)
-    - Description:  Weighting for each pixel (e.g. magnitude, complex difference, inverse velocity frequency)
+    - Description:  Magnitude image, weighting is handled in load_4Dflow  [threepoint_io.py](threepoint_io.py) 
 
 #  Data Training
 Data is trained in blocks with [threepoint_train.py](threepoint_train.py) 
